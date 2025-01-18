@@ -1,0 +1,396 @@
+Методи рефакторингу коду програмного забезпечення
+
+Роботу виконав: Криворучко Тимофій Олексійович
+Група: ПЗПІ-22-6
+2024
+
+Зміст
+
+Вступ --- 1 ст.
+Основні методи рефакторингу
+           Метод 1: Collapse Hierarchy --- 2 ст.
+           Метод 2: Replace Parameter with Explicit Methods --- 5 ст.
+           Метод 3: Replace Record with Data Class --- 8 ст.
+Приклади рефакторингу на основі коду студента
+           Метод 1: Collapse Hierarchy --- 11 ст.
+           Метод 2: Replace Parameter with Explicit Methods --- 16 ст.
+           Метод 3: Replace Record with Data Class --- 21 ст.
+Висновки --- 27 ст.
+Список використаних джерел --- 28 ст.
+
+Вступ
+Метою даної презентації є продемонструвати застосування трьох методів рефакторингу, описаних у книзі Мартіна Фаулера 
+"Refactoring. Improving the Design of Existing Code".  Як ми вже знаємо рефакторинг — це процес покращення структури 
+існуючого коду без зміни його поведінки і основна ідея полягає в тому, щоб зробити код легшим для розуміння, підтримки 
+та подальшого розвитку. У рамках презентації ми розглянемо реальні приклади використання методів рефакторингу з моїх 
+проєктів та проаналізуємо, як кожен метод допомагає вирішувати конкретні проблеми.
+
+        Основні методи рефакторингу
+Метод 1: Collapse Hierarchy (Звернення ієрархії)
+    Якщо коротко описувати цей метод, то він використовується для усунення зайвих рівнів у ієрархії класів. Якщо ієрархія класів 
+    є надто складною або певні класи не додають суттєвої функціональності, їх можна об'єднати, щоб зменшити складність. Це сприяє 
+    зменшенню дублювання коду та покращенню читабельності. [1, 2]
+
+Давайте подивимось на приклад:
+
+    // До рефакторингу
+    public class BasicEmployee
+    {
+        public string Name { get; set; }
+        public decimal Salary { get; set; }
+        public void DisplayInfo()
+        {
+            Console.WriteLine($"Employee: {Name}, Salary: {Salary}");
+        }
+    }
+    public class FullTimeEmployee : BasicEmployee
+    {
+    // Ніяких нових методів або властивостей немає
+    }
+
+У цьому простому прикладі є два класи BasicEmployee і FullTimeEmployee, але другий не додає ніякої унікальної поведінки 
+чи властивостей. Ієрархія є зайвою.
+Ієрархію усунуто. Усі властивості та методи перенесено в базовий клас BasicEmployee, який став єдиним.
+
+    // Після рефакторингу
+    public class Employee
+    {
+        public string Name { get; set; }
+        public decimal Salary { get; set; }
+        public void DisplayInfo()
+        {
+            Console.WriteLine($"Employee: {Name}, Salary: {Salary}");
+        }
+    }
+
+Метод 2: Replace Parameter with Explicit Methods.
+(Заміна параметра набором спеціалізованими методами)
+
+Даний метод застосовується, коли метод приймає параметр, який визначає його поведінку. Це може ускладнювати розуміння 
+логіки методу та створювати потенційні помилки через некоректні значення параметра. Заміна параметра на окремі чітко 
+визначені методи робить код зрозумілішим і дозволяє зменшити кількість умовних операторів. [1, 3, 4]
+
+У цьому прикладі метод calculateDiscount приймає параметр customerType, щоб визначити тип клієнта. Це робить код менш читабельним і ускладнює додавання нових типів клієнтів.
+
+    // До рефакторингу
+    class DiscountCalculator {
+        calculateDiscount(price, customerType) {
+            if (customerType === "regular") {
+                return price * 0.9; // 10% знижка
+            } else if (customerType === "premium") {
+                return price * 0.8; // 20% знижка
+            } else {
+                return price; // Без знижки
+            }
+        }
+    }
+
+    // Використання
+    const calculator = new DiscountCalculator();
+
+    console.log(calculator.calculateDiscount(100, "regular")); // 90
+    console.log(calculator.calculateDiscount(100, "premium")); // 80
+    console.log(calculator.calculateDiscount(100, "other"));   // 100
+
+Тепер після проведення змін кожен тип клієнта тепер має власний метод (calculateRegularDiscount, calculatePremiumDiscount). Це спрощує логіку 
+і робить код більш зрозумілим.
+
+// Після рефакторингу
+    class DiscountCalculator {
+        calculateRegularDiscount(price) {
+            return price * 0.9; // 10% знижка
+        }
+
+        calculatePremiumDiscount(price) {
+            return price * 0.8; // 20% знижка
+        }
+
+        calculateNoDiscount(price) {
+            return price; // Без знижки
+        }
+    }
+
+    // Використання
+    const calculator = new DiscountCalculator();
+
+    console.log(calculator.calculateRegularDiscount(100)); // 90
+    console.log(calculator.calculatePremiumDiscount(100)); // 80
+    console.log(calculator.calculateNoDiscount(100));      // 100
+
+Метод 3: Replace Record with Data Class (Замінити запис на клас даних)
+
+Метод передбачає перетворення простих структур даних (зокрема, записів або записів у вигляді об’єктів) у повноцінні класи, 
+які інкапсулюють не лише дані, але й логіку роботи з ними. Це дозволяє уникнути дублювання коду, а також робить систему більш гнучкою 
+для розширення. Подивимось на приклади [1, 5, 6]
+
+У цьому прикладі ми використовуємо звичайний об'єкт для зберігання даних про користувача. Логіка обробки даних розкидана по всьому коду, що 
+ускладнює підтримку і розширення.
+
+    // До рефакторингу
+    const user = {
+        firstName: "Tymofii",
+        lastName: "Kryvoruchko",
+        email: "tymofii.@example.com",
+        isActive: true,
+    };
+
+    // Логіка обробки даних
+    function getFullName(user) {
+        return `${user.firstName} ${user.lastName}`;
+    }
+
+    function deactivateUser(user) {
+        user.isActive = false;
+    }
+
+    // Використання
+    console.log(getFullName(user));
+    deactivateUser(user);
+    console.log(user.isActive); // false
+
+Ми перетворюємо об'єкт user на клас User, що інкапсулює дані та методи для їх обробки.
+
+    // Після рефакторингу
+    class User {
+        constructor(firstName, lastName, email, isActive = true) {
+            this.firstName = firstName;
+            this.lastName = lastName;
+            this.email = email;
+            this.isActive = isActive;
+        }
+
+        getFullName() {
+            return `${this.firstName} ${this.lastName}`;
+        }
+
+        deactivate() {
+            this.isActive = false;
+        }
+    }
+
+    // Використання
+    const user = new User("John", "Doe", "john.doe@example.com");
+    console.log(user.getFullName()); // John Doe
+    user.deactivate();
+    console.log(user.isActive); // false
+
+Приклади рефакторингу на основі коду студента:
+Після того як ми детально розібрали обрані нами методи, пропоную перейти до моїх прикладів з різних проектів та лабораторних робіт.
+Метод 1: Collapse Hierarchy (Усунення ієрархії)
+
+Опис проблеми.
+В одній лабораторній роботі, для обробки даних про користувачів було створено декілька класів. Спочатку клас User використовувався для загальної інформації про користувачів. 
+Пізніше додалися проміжний клас RegisteredUser і дочірній клас AdminUser. Однак клас RegisteredUser не додає жодного нового функціоналу.
+Давайте подивимось на код:
+
+    // До рефакторингу
+    public class User
+    {
+        public string Name { get; set; }
+        public string Email { get; set; }
+
+        public virtual void DisplayInfo()
+        {
+            Console.WriteLine($"Name: {Name}, Email: {Email}");
+        }
+    }
+
+    public class RegisteredUser : User
+    {
+        public override void DisplayInfo()
+        {
+            Console.WriteLine($"Registered User -> Name: {Name}, Email: {Email}");
+        }
+    }
+
+    public class AdminUser : RegisteredUser
+    {
+        public string AdminRole { get; set; }
+
+        public void DisplayAdminRole()
+        {
+            Console.WriteLine($"Admin Role: {AdminRole}");
+        }
+    }
+
+Як ми побачили на коді, проміжний клас RegisteredUser не додає жодного унікального функціоналу, його єдиним внеском є 
+перевизначення методу DisplayInfo, що можна перенести прямо до AdminUser. Тому метод Collapse Hierarchy допможе усунути 
+клас RegisteredUser, що спростить ієрархію, а отже покращить підтримку коду. Тож можемо перейти до реалізації:
+
+А ось і результат рефакторингу: 
+
+    // Після рефакторингу
+    public class User
+    {
+        public string Name { get; set; }
+        public string Email { get; set; }
+
+        public virtual void DisplayInfo()
+        {
+            Console.WriteLine($"Name: {Name}, Email: {Email}");
+        }
+    }
+
+    public class AdminUser : User
+    {
+        public string AdminRole { get; set; }
+
+        public override void DisplayInfo()
+        {
+            Console.WriteLine($"Admin User -> Name: {Name}, Email: {Email}");
+        }
+
+        public void DisplayAdminRole()
+        {
+            Console.WriteLine($"Admin Role: {AdminRole}");
+        }
+    }
+
+Переваги отриманого коду після застосування методу. Одразу можемо побачити, що після видалення ієрархія стала 
+простішою. Також логіка DisplayInfo перенесена в AdminUser, що усуває проміжні непотрібні перевизначення. Гадаю, що 
+програмістам тепер простіше розуміти і підтримувати структуру класів. Ну і якщо в подальшому код використовувався би, 
+то при додаванні нового типу користувача, його можна напряму створити від User, без проміжних ланок.
+
+Метод 2: Replace Parameter with Explicit Methods.
+(Заміна параметра набором спеціалізованими методами)
+
+Опис проблеми.
+Початковий код використовує умовні оператори для перевірки рядкового параметра name, що призводить до низької 
+читабельності, складності підтримки та ризику помилок через друкарські помилки. Додавання нових властивостей ускладнює 
+метод, роблячи його громіздким. 
+
+Подивимось на код:
+
+    // До рефакторингу
+    void SetValue(string name, int value)
+    {
+        if (name.Equals("height"))
+        {
+            height = value;
+            return;
+        }
+
+        if (name.Equals("width"))
+        {
+            width = value;
+            return;
+        }
+
+        Assert.Fail();
+    }
+
+Метод Replace Parameter with Explicit Methods пропонує замінити параметр name на окремі методи для кожного випадку. 
+Це зменшує залежність від умовних операторів та покращує читабельність коду.
+Код після рефакторингу:
+
+    // Після грефакторингу
+    void SetHeight(int arg)
+    {
+        height = arg;
+    }
+
+    void SetWidth(int arg)
+    {
+        width = arg;
+    }
+
+Після проведення змін, код стає зрозумілішим, оскільки кожен метод має чітко визначену роль (SetHeight для висоти, 
+SetWidth для ширини). Відсутність умовних операторів (if/else) робить методи простішими, а отже і менш вразливими до 
+помилок. Також методи можна легко протестувати незалежно один від одного.
+
+Метод 3: Replace Record with Data Class
+(Замінити запис на клас даних)
+
+У цьому прикладі ми працюємо з користувачем (User), який отримується з бази даних. Початковий код представляє 
+користувача як асоціативний масив (record). Додавання нової поведінки (наприклад, перевірка валідності email) 
+потребує нових функцій і ускладнює код. Ми рефакторимо його у клас (Data Class), щоб інкапсулювати дані та додати 
+поведінку. 
+
+    // До рефакторингу
+    $pdo = new PDO("mysql:host=localhost; dbname=test", "root", "");
+    $stmt = $pdo->query("SELECT id, name, email FROM users WHERE id = 1");
+    $user = $stmt->fetch(PDO::FETCH_ASSOC);
+
+    function getUserName($user) {
+        return $user['name'];
+    }
+
+    echo "User Name: " . getUserName($user);
+
+Основною проблемою було те, що логіка роботи з цими даними (наприклад, отримання імені, перевірка email) знаходилася поза об'єктом, що розпорошувало функціональність та ускладнювало внесення змін. Метод Replace Record with Data Class вирішує цю проблему шляхом заміни простого запису на клас, який інкапсулює дані та додає методи для їх обробки.
+Код після рефакторингу:
+
+    // Після рефакторингу
+    class User {
+        private $id;
+        private $name;
+        private $email;
+
+        public function __construct($id, $name, $email) {
+            $this->id = $id;
+            $this->name = $name;
+            $this->email = $email;
+        }
+
+        // Гетери для доступу до даних
+        public function getId() {
+            return $this->id;
+        }
+
+        public function getName() {
+            return $this->name;
+        }
+    }
+
+Також давай спробуємо додати ще функції для перевірки email, ну а потім як і в оригінальному коді виведемо ці дані. 
+
+    // Додатково після рефакторингу
+    class User {
+        private $id;
+        private $name;
+        private $email;
+
+        public function __construct($id, $name, $email) {
+            $this->id = $id;
+            $this->name = $name;
+            $this->email = $email;
+        }
+
+        public function getId() {
+            return $this->id;
+        }
+
+        public function getName() {
+            return $this->name;
+        }
+
+        public function getEmail() {
+            return $this->email;
+        }
+
+        public function isEmailValid() {
+            return filter_var($this->email, FILTER_VALIDATE_EMAIL) !== false;
+        }
+
+        public function displayUserInfo() {
+            return "ID: {$this->id}, Name: {$this->getName()}, Email: {$this->getEmail()}";
+        }
+    }
+
+Із переваг ми можемо відмітити, що дані (id, name, email) та поведінка зосереджені у класі User. З'явилися методи для валідації email, форматування імені та виведення повної інформації про користувача. огіка роботи з користувачем 
+структурована й зібрана в одному місці. Легко додати нові методи або модифікувати існуючі без зміни зовнішнього інтерфейсу класу. Цей приклад демонструє, як Replace Record with Data Class дозволяє покращити структуру коду, додати функціональність 
+і зробити його зручнішим для подальшого розвитку.
+
+ВИСНОВКИ
+У рамках презентації ми продемонстрували застосування трьох методів рефакторингу, описаних у книзі Мартіна Фаулера, та проаналізували їхній вплив на якість коду. Основні висновки полягають у наступному: рефакторинг дозволяє значно покращити структуру існуючого коду, зробивши його більш читабельним, 
+зрозумілим і легким для підтримки. Завдяки цьому зменшується кількість помилок, полегшується інтеграція нових функцій і спрощується взаємодія між членами команди. 
+Кожен із методів рефакторингу вирішував конкретну проблему: спрощення складних залежностей, уникнення дублювання коду та покращення інкапсуляції. Як показали приклади з моїх проєктів, навіть невеликі зміни у структурі коду 
+можуть суттєво підвищити його якість і сприяти довгостроковому успіху розробки програмного забезпечення. Рефакторинг є важливим інструментом для розробників, який сприяє створенню надійних і масштабованих систем.
+
+Список використаних джерел: 
+1.Мартін Фаулер. "Refactoring. Improving the Design of Existing Code"
+2.https://refactoring.guru/collapse-hierarchy
+3.https://refactoring.guru/replace-parameter-with-explicit-methods
+4.https://joelforjava.com/blog/2018/09/21/refactoring-replace-parameter-with-explicit-methods.html
+5.https://dzone.com/articles/practical-php-refactoring-15
+6.https://refactoring.guru/replace-type-code-with-class
