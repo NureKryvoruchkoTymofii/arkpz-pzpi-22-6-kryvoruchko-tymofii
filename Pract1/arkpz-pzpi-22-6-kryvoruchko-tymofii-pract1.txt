@@ -181,3 +181,6 @@ https://comscienceatschool.blogspot.com/p/blog-page_23.html
 https://w3schoolsua.github.io/hyperskill/paradigms.html#gsc.tab=0
 https://fsharp.org/
 https://fsharpforfunandprofit.com/
+
+Посилання на репозиторій: https://github.com/NureKryvoruchkoTymofii/arkpz-pzpi-22-6-kryvoruchko-tymofii/tree/main/Pract1
+Посилання на відео звіт на платформі Youtube: https://www.youtube.com/watch?v=bS_zbAkkzoY
