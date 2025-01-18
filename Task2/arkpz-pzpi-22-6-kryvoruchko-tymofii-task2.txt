@@ -1,0 +1,192 @@
+МІНІСТЕРСТВО ОСВІТИ І НАУКИ УКРАЇНИ
+ХАРКІВСЬКИЙ НАЦІОНАЛЬНИЙ УНІВЕРСИТЕТ РАДІОЕЛЕКТРОНІКИ
+     
+     
+Кафедра «Програмної інженерії»
+     
+     
+ЗВІТ
+до лабораторної роботи №2
+з дисципліни «Аналіз та рефакторинг коду»
+на тему: «РОЗРОБКА БАЗИ ДАНИХ ДЛЯ СЕРВЕРНОЇ ЧАСТИНИ ПРОГРАМНОЇ СИСТЕМИ ТА ПРИКЛАДНОГО ПРОГРАМНОГО ІНТЕРФЕЙСУ (API).»
+     
+     
+     
+     
+     
+Виконав:	Перевірив:
+ст. гр. ПЗПІ-22-6	ст. виклад. каф. ПІ
+Криворучко Т. О.	Сокорчук І. П.
+     
+     
+     
+ 
+     
+     
+
+Харків 2024 
+1 РОЗРОБКА БАЗИ ДАНИХ ДЛЯ СЕРВЕРНОЇ ЧАСТИНИ ПРОГРАМНОЇ СИСТЕМИ ТА ПРИКЛАДНОГО ПРОГРАМНОГО ІНТЕРФЕЙСУ (API)
+1.1. Мета роботи:
+Метою роботи є розробка бази даних для серверної частини та прикладного програмного інтерфейсу API.
+1.2. Хід роботи
+1.2.1. Розробка будови програмної системи.
+Програмна система для управління розумними замками базується на клієнт-серверній архітектурі, що забезпечує зручність і безпеку для користувачів. Серверна частина розроблена за допомогою PHP, із використанням фреймворку Laravel, що забезпечує ефективну обробку запитів і управління даними. Для зберігання інформації використовується реляційна база даних MySQL, яка дозволяє зберігати дані про користувачів, замки, історію доступу, автоматичні налаштування та звіти.
+Модулі серверної частини:
+1.	Модуль авторизації та аутентифікації:
+1.1.	Реєстрація нових користувачів (власників замків, адміністраторів).
+1.2.	Авторизація користувачів із використанням JSON Web Tokens для захищеного доступу до системи.
+2.	Модуль управління замками:
+2.1.	Додавання, перегляд, редагування та видалення інформації про замки.
+2.2.	Налаштування автоматичного блокування після певного періоду бездіяльності.
+2.3.	Віддалене відкриття та закриття замків через мобільний додаток або вебінтерфейс.
+2.4.	Відстеження статусу замків (відкритий/закритий).
+
+3.	Модуль обробки даних IoT-пристроїв:
+3.1.	Збір і обробка даних від розумних замків.
+3.2.	Оновлення інформації про стан замка в реальному часі.
+4.	Модуль аналітики:
+4.1.	Формування звітів про використання замків (історія дій, частота використання).
+4.2.	Аналіз даних для виявлення аномальної активності.
+4.3.	Генерація статистичних даних для оптимізації роботи системи.
+5.	Модуль управління користувачами:
+5.1.	Перегляд та редагування профілю користувача (налаштування сповіщень, інформація про замки).
+5.2.	Управління правами доступу до замків.
+5.3.	Інтерфейс для адміністрування прав доступу користувачів та аналізу даних.
+6.	Модуль адміністрування:
+6.1.	Управління пристроями (додавання або видалення замків).
+6.2.	Моніторинг роботи серверної частини системи.
+7.	Модулі клієнтської частини:
+7.1.	Перегляд списку замків їхній статус.
+7.2.	Віддалене управління замками (відкриття, закриття, налаштування автоматичного блокування).
+7.3.	Візуалізація аналітичних звітів для користувачів і адміністраторів.
+
+1.2.2	Створити UML діаграму прецедентів для серверної частини системи.
+ 
+
+
+ 
+
+
+ 
+
+1.2.3	Створити ER діаграму даних.
+ 
+
+
+
+1.2.4	Розробити базу даних (БД) програмної системи.
+Необхідні запити знаходяться в додатку А
+
+1.2.5	Створити діаграму структури БД.
+  
+
+1.2.7 	Розробити API (REST або GraphQL, gRPC тощо) для взаємодії серверної частини з клієнтами.
+Було розроблено REST API для взаємодії серверної частини з клієнтами, яке включає наступні функціональні можливості: отримання, додавання, оновлення та видалення даних для таблиць Users, Lock, Sensors, SensorData, AccessLogs, LockUsageLogs. API підтримує запити на отримання конкретних записів за ID, фільтрацію за різними параметрами (наприклад, статус, категорія, тип, локація), а також оновлення статусів об'єктів. Запити реалізовані за допомогою методів HTTP: GET, POST, PUT, PATCH та DELETE.
+1.2.8	Створити специфікацію розробленого API.
+Метод	Маршрут	Опис
+GET	/users	Отримати всіх користувачів
+GET	/users/id	Отримати користувача за id
+GET	/users/user	Отримати користувача за його роллю
+DELETE	/users/id	Видалити користувача за id
+POST	/users	Додати нового користувача
+PUT	/users/id	Оновити дані користувача за id
+GET	/locks	Отримати всі замки
+GET	/locks/id	Отримати замок за id
+GET	/locks/unlocked	Отримати замок за його статусом
+DELETE	/locks/id	Видалити замок за id
+POST	/locks/	Додати новий замок
+PUT	/locks/id	Оновити дані замка за id
+GET	/user/lock/id	Отримати всі замки за id користувача
+GET	/sensors	Отримати всі сенсори
+GET	/sensors/id	Отримати сенсор за id
+GET	/sensors/magnetic_field	Отримати сенсор за типом сенсора
+DELETE	/sensors/id	Видалити сенсор за id
+POST	/sensors	Додати новий сенсор
+PUT	/sensors/id	Оновити дані сенсору
+GET	/sensordata	Отримати всі дані сенсорів
+POST	/sensordata	Додати дані сенсорів
+GET	/sensordata/sensor/id	Отримати всі дані за id сенсора
+DELETE	/sensordata/id	Видалити дані сенсора за id
+PUT	/sensordata/	Оновити дані сенсорів за id
+
+1.2.9	Створити програмну реалізацію розробленого API та функцій роботи з БД.
+Було створено програмну реалізацію розробленого API та функцій роботи з базою даних у проекті lock-system. У папці routes були визначені маршрути для відповідних сутностей: accessLog.php, locks.php, lockUsageLogs.php та sensorData.php, де кожен маршрут викликає методи відповідних контролерів. У папці controllers розміщено логіку обробки запитів для кожної сутності: AccessLogController.php, LockController.php, LockUsageLogController.php, SensorController.php, SensorDataController.php, SensorSimulatorController.php та UserController.php. Водночас у папці models реалізовано функції взаємодії з базою даних для кожної сутності у файлах AccessLog.php, Lock.php, LockUsageLog.php, Sensor.php, SensorData.php та User.php. База даних підключається через файл config. Головний файл index.php відповідає за ініціалізацію сервера та підключення маршрутів. Для перевірки та тестування розробленого API було створено колекцію запитів у Postman, де також була розроблена програмна версія специфікації API. У Postman були задокументовані всі запити для роботи з базою даних, включно з методами GET, POST, PUT, PATCH та DELETE.
+1.2.10	 Перевірити роботу створеного програмного коду серверної частини системи.
+Для перевірки програмного коду серверної частини проведем за допомогою Postman.
+ 
+
+
+Як ми можемо побачити на Рисунку 6, всі користувачі, які є в нас в БД успішно вивелись.
+
+ 
+
+Як ми можемо побачити на Рисунку 7, дані замка за 15 id було успішно оновлено.
+1.5 Посилання
+Посилання на репозиторій:
+Посилання на відео-доповідь: 
+ 
+Додаток А
+  1 CREATE DATABASE lock_system;
+  2 
+  3 CREATE TABLE Users (
+  4     UserID INT AUTO_INCREMENT PRIMARY KEY,
+  5     Username VARCHAR(100),
+  6     Email VARCHAR(255) UNIQUE,
+  7     PasswordHash VARCHAR(255),
+  8     Role ENUM('Admin', 'User'),
+  9     CreatedAt DATETIME DEFAULT CURRENT_TIMESTAMP,
+ 10     UpdatedAt DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+ 11 );
+ 12 
+ 13 CREATE TABLE Locks (
+ 14     LockID INT AUTO_INCREMENT PRIMARY KEY,
+ 15     LockName VARCHAR(100),
+ 16     Location VARCHAR(255),
+ 17     Status ENUM('Locked', 'Unlocked', 'Faulty'),
+ 18     CreatedAt DATETIME DEFAULT CURRENT_TIMESTAMP,
+ 19     UpdatedAt DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+ 20     OwnerID INT,
+ 21     AutoLockTime INT,
+ 22     FOREIGN KEY (OwnerID) REFERENCES Users(UserID) ON DELETE CASCADE
+ 23 );
+ 24 
+ 25 CREATE TABLE AccessLogs (
+ 26     LogID INT AUTO_INCREMENT PRIMARY KEY,
+ 27     LockID INT NOT NULL,
+ 28     UserID INT NOT NULL,
+ 29     Action ENUM('Lock', 'Unlock', 'Failed Attempt'),
+ 30     Timestamp DATETIME DEFAULT CURRENT_TIMESTAMP,
+ 31     FOREIGN KEY (LockID) REFERENCES Locks(LockID) ON DELETE CASCADE,
+ 32     FOREIGN KEY (UserID) REFERENCES Users(UserID) ON DELETE CASCADE
+ 33 );
+ 34 
+ 35 CREATE TABLE LockUsageLogs (
+ 36     LogID INT AUTO_INCREMENT PRIMARY KEY,
+ 37     LockID INT NOT NULL,
+ 38     Action ENUM('Opened', 'Closed', 'Error'),
+ 39     Timestamp DATETIME DEFAULT CURRENT_TIMESTAMP,
+ 40     FOREIGN KEY (LockID) REFERENCES Locks(LockID) ON DELETE CASCADE
+ 41 );
+ 42
+ 43 CREATE TABLE Sensors (
+ 44     SensorID INT AUTO_INCREMENT PRIMARY KEY,
+ 45     UserID INT,
+ 46     LockID INT,
+ 47     SensorType ENUM('Temperature', 'Motion', 'Magnetic'),
+ 48     Status ENUM('Active', 'Inactive'),
+ 49     LastUpdated DATETIME,
+ 50     CreatedAt DATETIME DEFAULT CURRENT_TIMESTAMP,
+ 51     UpdatedAt DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+ 52     FOREIGN KEY (UserID) REFERENCES Users(UserID) ON DELETE SET NULL,
+ 53     FOREIGN KEY (LockID) REFERENCES Locks(LockID) ON DELETE CASCADE
+ 54 );
+ 55
+ 56 CREATE TABLE SensorData (
+ 57     DataID INT AUTO_INCREMENT PRIMARY KEY,
+ 58     SensorID INT NOT NULL,
+ 59     DataType ENUM('Temperature', 'Motion', 'Magnetic Field'),
+ 60     DataValue FLOAT,
+ 61     Timestamp DATETIME DEFAULT CURRENT_TIMESTAMP,
+ 62     FOREIGN KEY (SensorID) REFERENCES Sensors(SensorID) ON DELETE CASCADE
+ 63 );
+
