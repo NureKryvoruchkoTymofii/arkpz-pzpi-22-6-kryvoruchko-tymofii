@@ -151,8 +151,8 @@
  
 
 1.5 Посилання
-Посилання на репозиторій: 
-Посилання на відео-доповідь: 
+Посилання на репозиторій: https://github.com/NureKryvoruchkoTymofii/arkpz-pzpi-22-6-kryvoruchko-tymofii/tree/main/Task3
+Посилання на відео-доповідь: https://www.youtube.com/watch?v=gzOHcP0Y3fg
 Посилання на UML діаграма діяльності для серверної частини;
 Посилання на UML діаграма взаємодії для серверної частини.
 
